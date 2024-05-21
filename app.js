@@ -40,7 +40,7 @@ mongoose.connect(db_URL)
 
 
 
-app.use(session({
+app.use(session ({
     secret: 'your-secret-key', // Use a long, random string for better security
     resave: false,
     saveUninitialized: false,
