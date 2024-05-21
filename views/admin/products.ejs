@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head>
+    <title>Admin Products</title>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+    <style>
+        body { padding-top: 50px; }
+        .container { max-width: 800px; margin: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Products</h1>
+        <a href="/admin/products/add" class="btn btn-success">Add New Product</a>
+    </div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Image</th>
+                    <th>Price</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% products.forEach(product => { %>
+                    <tr>
+                        <td><%= product._id %></td>
+                        <td><%= product.name %></td>
+                        <td><%= product.description %></td>
+                        <td><img src="/public/<%= product.image %>" alt="<%= product.name %>"></td>
+                        <td><%= product.price %></td>
+                        <td>
+                            <form action="/admin/products/edit/<%= product._id %>" method="post" style="display:inline;">
+                                <input type="hidden" name="name" value="<%= product.name %>">
+                                <input type="hidden" name="description" value="<%= product.description %>">
+                                <input type="hidden" name="image" value="<%= product.image %>">
+                                <input type="hidden" name="price" value="<%= product.price %>">
+                                <button type="submit" class="btn btn-primary">Edit</button>
+                            </form>
+                            <form action="/admin/products/delete/<%= product._id %>" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
