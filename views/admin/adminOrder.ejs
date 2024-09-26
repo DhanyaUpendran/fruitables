@@ -1,0 +1,56 @@
+<%- include('../partials/header') %>
+<h1>Orders</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>User</th>
+            <th>Products</th>
+            <th>Billing Details</th>
+            <th>Payment Status</th>
+            <th>Total Amount</th>
+            <th>Date</th>
+            <th>Order Status</th> <!-- New column for order status -->
+            <th>Actions</th> <!-- New column for actions -->
+        </tr>
+    </thead>
+    <tbody>
+        <% orders.forEach(order => { %>
+        <tr>
+            <td><%= order._id %></td>
+            <td><%= order.user.firstName %> <%= order.user.lastName %></td>
+            <td>
+                <ul>
+                    <% order.products.forEach(product => { %>
+                    <li>
+                        Product: <%= product.productId.name %> <br>
+                        Quantity: <%= product.quantity %> <br>
+                        Price: <%= product.price %>
+                    </li>
+                    <% }); %>
+                </ul>
+            </td>
+            <td>
+                <%= order.billingDetails.firstName %> <%= order.billingDetails.lastName %><br>
+                Address: <%= order.billingDetails.address %>, <%= order.billingDetails.city %>, <%= order.billingDetails.country %>
+            </td>
+            <td><%= order.paymentDetails.status %></td>
+            <td><%= order.totalAmount %></td>
+            <td><%= order.date.toLocaleDateString() %></td>
+            <td>
+                <form action="/admin/orders/<%= order._id %>/status" method="POST">
+                    <select name="status" onchange="this.form.submit()">
+                        <option value="Placed" <%= order.status === 'Placed' ? 'selected' : '' %>>Placed</option>
+                        <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                        <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                    </select>
+                </form>
+            </td>
+            <td>
+                <!-- You can add more admin actions like deleting orders here -->
+            </td>
+        </tr>
+        <% }); %>
+    </tbody>
+</table>
+<%- include('../partials/footer') %>

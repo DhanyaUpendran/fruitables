@@ -1,0 +1,171 @@
+<%- include('../partials/header') %>
+
+<body>
+    <!-- Spinner Start -->
+    <div id="spinner" class="show w-100 vh-100 bg-white position-fixed translate-middle top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-grow text-primary" role="status"></div>
+    </div>
+    <!-- Spinner End -->
+
+    <!-- Navbar Start -->
+    <%- include('../partials/nav') %>
+
+    <!-- Modal Search Start -->
+    <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content rounded-0">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Search by keyword</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body d-flex align-items-center">
+                    <div class="input-group w-75 mx-auto d-flex">
+                        <input type="search" class="form-control p-3" placeholder="keywords" aria-describedby="search-icon-1">
+                        <span id="search-icon-1" class="input-group-text p-3"><i class="fa fa-search"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Search End -->
+
+    <!-- Single Page Header Start -->
+    <div class="container-fluid page-header py-5">
+        <h1 class="text-center text-white display-6">Checkout</h1>
+        <ol class="breadcrumb justify-content-center mb-0">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active text-white">Checkout</li>
+        </ol>
+    </div>
+    <!-- Single Page Header End -->
+
+    <!-- Checkout Page Start -->
+    <div class="container-fluid py-5">
+        <div class="container py-5">
+            <h1 class="mb-4">Billing Details</h1>
+            
+                <div class="row g-5">
+                    <div class="col-md-12 col-lg-6 col-xl-7">
+                        <form action="/checkout" method="POST" >
+
+                            <div class="customer-details">
+                                <h4>Customer Details</h4>
+                                <input type="text" name="firstName" class="form-control" placeholder="First Name" required>
+                                <input type="text" name="lastName" class="form-control" placeholder="Last Name" required>
+                                <input type="text" name="company" class="form-control" placeholder="Company (optional)">
+                                <input type="text" name="address" class="form-control" placeholder="Address" required>
+                                <input type="text" name="city" class="form-control" placeholder="City" required>
+                                <input type="text" name="country" class="form-control" placeholder="Country" required>
+                                <input type="text" name="postcode" class="form-control" placeholder="Postcode" required>
+                                <input type="tel" name="phone" class="form-control" placeholder="Phone" required>
+                                <input type="email" name="email" class="form-control" placeholder="Email" required>
+                            </div>
+                        
+                            <h4>Payment Method</h4>
+                            <div class="payment-method">
+                                <label>
+                                    <input type="radio" name="paymentMethod" value="Direct Bank Transfer" required> Direct Bank Transfer
+                                </label>
+                                <label>
+                                    <input type="radio" name="paymentMethod" value="Cash On Delivery"> Cash On Delivery
+                                </label>
+                                <label>
+                                    <input type="radio" name="paymentMethod" value="Paypal"> Paypal
+                                </label>
+                            </div>
+                        
+                            <input type="hidden" name="cartTotal" value="<%= cartItems.reduce((total, item) => total + item.price * item.quantity, 0) %>">
+                            <button type="submit" class="btn btn-primary w-100">Place Order</button>
+
+                        </form>
+                        
+                        
+
+                    </div>
+                    <div class="col-md-12 col-lg-6 col-xl-5">
+                        <!-- Cart Summary -->
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Products</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Price</th>
+                                        <th scope="col">Quantity</th>
+                                        <th scope="col">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% cartItems.forEach(item => { %>
+                                    <tr>
+                                        <th scope="row">
+                                            <div class="d-flex align-items-center mt-2">
+                                                <img src="<%= item.image %>" class="img-fluid rounded-circle" style="width: 90px; height: 90px;" alt="<%= item.name %>">
+                                            </div>
+                                        </th>
+                                        <td class="py-5"><%= item.name %></td>
+                                        <td class="py-5">$<%= item.price %></td>
+                                        <td class="py-5"><%= item.quantity %></td>
+                                        <td class="py-5">$<%= item.price * item.quantity %></td>
+                                    </tr>
+                                    <% }) %>
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>Subtotal</td>
+                                        <td>$<%= cartItems.reduce((total, item) => total + item.price * item.quantity, 0) %></td>
+                                    </tr>
+                                    <!-- Shipping options and total -->
+                                    <tr>
+                                        <td></td>
+                                        <td>Shipping</td>
+                                        <td colspan="3">
+                                            <div class="form-check">
+                                                <input type="radio" class="form-check-input" name="shippingOption" id="Shipping-1" value="Free Shipping">
+                                                <label class="form-check-label" for="Shipping-1">Free Shipping</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="radio" class="form-check-input" name="shippingOption" id="Shipping-2" value="Flat rate">
+                                                <label class="form-check-label" for="Shipping-2">Flat rate: $15.00</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="radio" class="form-check-input" name="shippingOption" id="Shipping-3" value="Local Pickup">
+                                                <label class="form-check-label" for="Shipping-3">Local Pickup: $8.00</label>
+                                            </div>
+                                            
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td class="text-uppercase">TOTAL</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>$<%= cartItems.reduce((total, item) => total + item.price * item.quantity, 0) %> <!-- Adjust this with shipping --> </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Payment options
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="Payment-1" value="Direct Bank Transfer">
+                            <label class="form-check-label" for="Payment-1">Direct Bank Transfer</label>
+                        </div>
+                        <p class="text-dark">Make your payment directly into our bank account...</p>
+
+                        //other payment methods remain the same -->
+
+                      <!--  <button type="submit" class="btn btn-primary w-100">Place Order</button> -->
+                    </div>
+                </div>
+            
+        </div>
+    </div>
+    <!-- Checkout Page End -->
+
+    <!-- Footer Start -->
+    <%- include('../partials/footer') %>
+    <!-- Footer End -->
+</body>
+</html>

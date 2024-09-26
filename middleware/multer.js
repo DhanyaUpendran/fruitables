@@ -1,17 +1,19 @@
+const path = require('path');
 const multer = require('multer');
 
-// Set storage engine
+// Set storage engine 
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
-        cb(null, 'public/img');
+        cb(null, path.join(__dirname,'../public/img'));
     },
     filename: function(req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        
         const originalName = file.originalname;
-        const extension = originalName.substring(originalName.lastIndexOf('.'), originalName.length).toLowerCase();
-        cb(null, uniqueSuffix + extension);
+        cb(null, originalName);
+        console.log(originalName);
     }
 });
+
 
 // Check file type function
 function checkFileType(file, cb) {

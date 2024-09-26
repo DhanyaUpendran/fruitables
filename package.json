@@ -18,6 +18,7 @@
     "ejs": "^3.1.10",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
+    "fruitables-1.0.0": "file:",
     "mongoose": "^8.3.5",
     "multer": "^1.4.5-lts.1",
     "nodemon": "^3.1.0",

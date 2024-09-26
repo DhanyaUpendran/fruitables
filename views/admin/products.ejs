@@ -30,7 +30,7 @@
                         <td><%= product._id %></td>
                         <td><%= product.name %></td>
                         <td><%= product.description %></td>
-                        <td><img src="/public/<%= product.image %>" alt="<%= product.name %>"></td>
+                        <td><img src="/<%= product.image %>" alt="<%= product.name %>"></td>
                         <td><%= product.price %></td>
                         <td>
                             <form action="/admin/products/edit/<%= product._id %>" method="post" style="display:inline;">

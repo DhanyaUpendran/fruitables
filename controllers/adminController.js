@@ -1,5 +1,7 @@
 //product model requiring
 const Product = require('../models/admin/products');
+const Order = require('../models/user/order');
+
 
 
 //admin details
@@ -49,14 +51,14 @@ const renderAddProductForm = (req, res) => {
 };
 
 const addProduct = async (req, res) => {
-    const { name, description, price } = req.body;
+    const { name, category,description, price } = req.body;
     const image = req.file ? 'img/' + req.file.filename : null;
 
     if (!image) {
         return res.status(400).send('Image is required');
     }
 
-    const newProduct = new Product({ name, description, image, price });
+    const newProduct = new Product({ name, description,category, image, price });
 
     try {
         await newProduct.save();
@@ -67,9 +69,19 @@ const addProduct = async (req, res) => {
 };
 const editProduct = async (req, res) => {
     const { id } = req.params;
-    const { name, description, image, price } = req.body;
+    const { name, description, category, price } = req.body;
+    let image;
+
+    // If a new image is uploaded, use it. Otherwise, keep the old image.
+    if (req.file) {
+        image = 'img/' + req.file.filename;
+    } else {
+        const product = await Product.findById(id);
+        image = product.image;
+    }
+
     try {
-        await Product.findByIdAndUpdate(id, { name, description, image, price });
+        await Product.findByIdAndUpdate(id, { name, description, category, image, price });
         res.redirect('/admin/products');
     } catch (error) {
         res.status(500).send('Error editing product');
@@ -87,6 +99,45 @@ const deleteProduct = async (req, res) => {
 };
 
 
+//Order page
+
+const getOrdersAdmin = async (req, res) => {
+    try {
+        // Fetch all orders with user details
+        const orders = await Order.find().populate('user').populate('products.productId');
+        res.render('admin/orders', { orders });
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        res.status(500).send('Error fetching orders');
+    }
+};
+
+
+
+const status= async (req, res) => {
+    try {
+        const orderId = req.params.orderId;
+        const newStatus = req.body.status;
+
+        // Find the order and update the status
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.status(404).send('Order not found');
+        }
+
+        order.status = newStatus;
+        await order.save();
+
+        // Redirect back to the orders page
+        res.redirect('/admin/orders');
+    } catch (error) {
+        console.error('Error updating order status:', error);
+        res.status(500).send('Internal Server Error');
+    }
+}
+
+
+
 
 module.exports = {
     adminLogin,
@@ -96,5 +147,7 @@ module.exports = {
     renderAddProductForm,
     addProduct,
     editProduct,
-    deleteProduct
+    deleteProduct,
+    getOrdersAdmin,
+    status
 };
