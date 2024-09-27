@@ -6,15 +6,15 @@ const CartItem= require('../models/user/cartItem');
 const Order= require('../models/user/order');
 
 const signup =  (req, res) => {
-    res.render('user/signup'); // Pass the user object to the index view
+    res.render('user/signup'); 
 }
 
 const index = (req, res) => {
     // Check if user is authenticated (logged in)
     if (req.session.user) {
-        res.render('user/index', { user: req.session.user}); // Render the index page with user data
+        res.render('user/index', { user: req.session.user}); 
     } else {
-        res.redirect('/signup'); // Redirect to signup page if user is not authenticated
+        res.redirect('/signup'); 
     }
 };
  
@@ -36,11 +36,11 @@ const saveSignup = async (req, res) => {
             Username: username
         });
 
-        // Save the new user to the database
+      
         await newSignup.save();
         console.log('User successfully signed up:', newSignup);
 
-        // Redirect to the login page after successful signup
+        
         res.redirect('/login');
     } catch (error) {
         console.log('Error saving signup data:', error);
@@ -55,21 +55,21 @@ const loginVerify = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        // Check if email and password match a document in the database
+       
         const user = await Signup.findOne({ Email: email, Password: password });
 
         if (user) {
-            // Store user data in session
+           
             req.session.user = {
                 _id: user._id,
                 username: user.Username,
                 email: user.Email
-                // Add any other user data you want to store in the session
+               
             };
             console.log('User authenticated:', req.session.user);
-            res.redirect('/home'); // Redirect to the home page after successful login
+            res.redirect('/home'); 
         } else {
-            // Invalid credentials, render login page with error message
+           
             res.render('user/login', { error: 'Invalid email or password' });
         }
     } catch (error) {
@@ -80,7 +80,7 @@ const loginVerify = async (req, res) => {
 
 const logout =  (req, res) => {
     req.session.destroy();
-    res.redirect('/login'); // Redirect to login page after logout
+    res.redirect('/login'); 
 }
 
 
@@ -127,7 +127,7 @@ const shopDetail = (req,res)=>{
 
 const cartPage = async (req, res) => {
     try {
-        // Access the user ID from the session
+        
         const userId = req.session.user;
        
         if (!userId) {
@@ -135,14 +135,13 @@ const cartPage = async (req, res) => {
            
         }
 
-        // Fetch the user from the database and populate the cart
         const user = await Signup.findById(userId).populate('cart.productId');
 
         if (!user) {
             return res.status(404).send('User not found');
         }
         const cartItem = user.cart
-        .filter(item => item.productId) // Ensure productId is populated
+        .filter(item => item.productId)
         .map(item => ({
             productId: item.productId._id,
             name: item.productId.name,
@@ -151,7 +150,7 @@ const cartPage = async (req, res) => {
             quantity: item.quantity
         }));
             
-        // console.log('Populated Cart:', user.cart);
+    
         res.render('user/cart', { user, cartItem});
     } catch (error) {
         console.error('Error fetching cart:', error);
@@ -185,7 +184,7 @@ const getCart = async (req, res) => {
         }
         await user.save();
 
-        // Redirect to the cart page or send a success response
+       
         res.redirect('/cart'); 
     } catch (error) {
         console.error('Error adding product to cart:', error);
@@ -206,16 +205,16 @@ const cartEdit= async (req,res) =>{
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
-       // Ensure that the user has a cart and items array
+       
        if (!user.cart) {
         user.cart = { items: [] }; // Initialize cart if it doesn't exist
     }
 
     if (!user.cart.items) {
-        user.cart.items = []; // Initialize items array if it doesn't exist
+        user.cart.items = [];
     }
 
-    // Find the cart item associated with the productId
+  
     const cartItem = user.cart.find(item => item.productId && item.productId.equals(productId));
 
         if (!cartItem) {
@@ -232,10 +231,10 @@ const cartEdit= async (req,res) =>{
             user.cart.items = user.cart.items.filter(item => item.productId && item.productId.equals(!productId));
         }
 
-        // Save the updated user cart
+      
         await user.save();
 
-        return res.redirect('/cart'); // Redirect to cart page after update
+        return res.redirect('/cart'); 
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: 'Server error' });
@@ -244,14 +243,14 @@ const cartEdit= async (req,res) =>{
 };
 const cartRemove = async (req, res) => {
     try {
-        const userId = req.session.user; // Access the user ID from the session
+        const userId = req.session.user; 
         const productId = req.params.productId; // Get the productId from the URL parameter
 
         if (!userId) {
             return res.status(401).json({ error: 'User not authenticated' });
         }
 
-        // Find the user by ID
+    
         const user = await Signup.findById(userId);
 
         if (!user) {
@@ -262,12 +261,12 @@ const cartRemove = async (req, res) => {
         const index = user.cart.findIndex(item => item.productId && item.productId.equals(productId));
 
         if (index !== -1) {
-            // Remove the item from the cart using splice
+           
             user.cart.splice(index, 1);
-            await user.save(); // Save the updated cart
+            await user.save(); 
         }
 
-        // Redirect to the cart page or send a success response
+      
         res.redirect('/cart');
     } catch (error) {
         console.error('Error removing product from cart:', error);
@@ -300,7 +299,7 @@ const getCheckOut = async (req, res) => {
         }
 
         const cartItems = user.cart
-        .filter(item => item.productId) // Ensure productId is populated
+        .filter(item => item.productId) 
         .map(item => ({
             productId: item.productId._id,
             name: item.productId.name,
@@ -374,7 +373,7 @@ const postCheckOut = async (req, res) => {
 
         console.log("New order:", newOrder);
 
-        // Save the order to the database
+      
         await newOrder.save();
         console.log("Order saved");
 
@@ -382,7 +381,7 @@ const postCheckOut = async (req, res) => {
         user.cart = [];
         await user.save();
 
-        // Redirect to a success page or show confirmation
+    
         res.redirect('/ordersuccess');
     } catch (error) {
         console.error("Error during checkout:", error);
@@ -390,6 +389,59 @@ const postCheckOut = async (req, res) => {
         console.log("order failed");
     }
 };
+
+const getOrder = async (req, res) => {
+    try {
+        const { user: userId } = req.session;
+        if (!userId) {
+            return res.status(400).json({ error: 'User not logged in' });
+        }
+
+        // Fetch orders and populate the productId field
+        const orders = await Order.find({ user: userId })
+            .populate({
+                path: 'products.productId',
+                strictPopulate: false 
+            });
+
+        if (!orders || orders.length === 0) {
+            return res.status(404).json({ error: 'No orders found' });
+        }
+
+        const orderDetails = orders.map(order => {
+            const { _id: orderId, products, totalAmount, date, status } = order;
+
+            const productDetails = products.map(item => {
+                // Check if productId exists before destructuring
+                if (!item.productId) {
+                    console.error('Product ID missing for item:', item);
+                    return { productId: null, name: 'Product not found', image: '', price: 0, quantity: item.quantity };
+                }
+
+                // Safely destructure if productId exists
+                const { _id: productId, name, image, price } = item.productId;
+                const { quantity } = item;
+
+                return { productId, name, image, price, quantity };
+            });
+
+            return {
+                orderId,
+                products: productDetails,
+                totalAmount,
+                date,
+                status
+            };
+        });
+
+        res.render('user/myOrders', { user: req.session.user, orderDetails });
+    } catch (error) {
+        console.error("Error fetching orders:", error);
+        res.status(500).send('Error fetching orders');
+    }
+};
+
+
 
 
 
@@ -425,7 +477,7 @@ module.exports = {
     cartRemove,
     getCheckOut,
     postCheckOut,
-    getOrderSuccess
-   
+    getOrderSuccess,
+    getOrder,
     
 }

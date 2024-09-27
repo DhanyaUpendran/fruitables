@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Details</title>
+    <style>
+        table {
+            width: 50%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align:center;">Customer Details</h1>
+    
+    <table>
+        <tr>
+            <th>Name</th>
+            <td><%= customer.name %></td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td><%= customer.email %></td>
+        </tr>
+        <tr>
+            <th>Phone</th>
+            <td><%= customer.phone %></td>
+        </tr>
+        <tr>
+            <th>Address</th>
+            <td><%= customer.address %></td>
+        </tr>
+        
+    </table>
+
+    <div style="text-align:center;">
+        <a href="/admin/customers">Back to Customer List</a>
+    </div>
+</body>
+</html>
+

@@ -38,7 +38,7 @@
             <td><%= order.totalAmount %></td>
             <td><%= order.date.toLocaleDateString() %></td>
             <td>
-                <form action="/admin/orders/<%= order._id %>/status" method="POST">
+                <form action="/admin/adminOrder/<%= order._id %>/status" method="POST">
                     <select name="status" onchange="this.form.submit()">
                         <option value="Placed" <%= order.status === 'Placed' ? 'selected' : '' %>>Placed</option>
                         <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
@@ -47,10 +47,10 @@
                 </form>
             </td>
             <td>
-                <!-- You can add more admin actions like deleting orders here -->
+                
             </td>
         </tr>
         <% }); %>
     </tbody>
 </table>
-<%- include('../partials/footer') %>
+

@@ -1,6 +1,7 @@
 //product model requiring
 const Product = require('../models/admin/products');
 const Order = require('../models/user/order');
+const Signup = require('../models/user/signup'); 
 
 
 
@@ -105,7 +106,7 @@ const getOrdersAdmin = async (req, res) => {
     try {
         // Fetch all orders with user details
         const orders = await Order.find().populate('user').populate('products.productId');
-        res.render('admin/orders', { orders });
+        res.render('admin/adminOrder', { orders });
     } catch (error) {
         console.error('Error fetching orders:', error);
         res.status(500).send('Error fetching orders');
@@ -114,27 +115,42 @@ const getOrdersAdmin = async (req, res) => {
 
 
 
-const status= async (req, res) => {
+const updateOrderStatus = async (req, res) => {
+    const { orderId } = req.params;
+    const { status } = req.body;
+
     try {
-        const orderId = req.params.orderId;
-        const newStatus = req.body.status;
+        // Find the order by ID and update the status
+        await Order.findByIdAndUpdate(orderId, { status });
 
-        // Find the order and update the status
-        const order = await Order.findById(orderId);
-        if (!order) {
-            return res.status(404).send('Order not found');
-        }
-
-        order.status = newStatus;
-        await order.save();
-
-        // Redirect back to the orders page
-        res.redirect('/admin/orders');
+        // Redirect back to the orders page (or wherever you want)
+        res.redirect('/admin/adminOrder');
     } catch (error) {
         console.error('Error updating order status:', error);
-        res.status(500).send('Internal Server Error');
+        res.status(500).send('Error updating order status');
     }
-}
+};
+
+//customer details------------------------------------//
+const getCustomerDetails = async (req, res) => {
+    const { userId } = req.params;
+    
+    try {
+        // Fetch the customer details by their ID
+        const customer = await Signup.findById(userId);
+
+        if (!customer) {
+            return res.status(404).send('Customer not found');
+        }
+
+        // Render the customer.ejs view and pass the customer details
+        res.render('admin/customers', { customer });
+    } catch (error) {
+        console.error('Error fetching customer details:', error);
+        res.status(500).send('Error fetching customer details');
+    }
+};
+
 
 
 
@@ -149,5 +165,6 @@ module.exports = {
     editProduct,
     deleteProduct,
     getOrdersAdmin,
-    status
+    updateOrderStatus,
+    getCustomerDetails
 };

@@ -1,44 +1,41 @@
 <%- include('../partials/header') %>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Orders</title>
-    <link rel="stylesheet" href="/path/to/your/styles.css">
-</head>
+
 <body>
-    <h1>My Orders</h1>
+ 
+    <h1 style="text-align: center; margin-top: 20px;">My Orders</h1>
+ 
 
     <% if (orderDetails.length === 0) { %>
         <p>You have no orders yet.</p>
     <% } else { %>
-        <table>
+        <table style="border-collapse: collapse; width: 100%; border: 2px solid black;">
             <thead>
                 <tr>
-                    <th>Order ID</th>
-                    <th>Products</th>
-                    <th>Total Amount</th>
-                    <th>Date</th>
-                    <th>Status</th>
+                    <th style="border: 2px solid black; padding: 8px;">Order ID</th>
+                    <th style="border: 2px solid black; padding: 8px;">Products</th>
+                    <th style="border: 2px solid black; padding: 8px;">Total Amount</th>
+                    <th style="border: 2px solid black; padding: 8px;">Date</th>
+                    <th style="border: 2px solid black; padding: 8px;">Status</th>
                 </tr>
             </thead>
             <tbody>
                 <% orderDetails.forEach(order => { %>
                     <tr>
-                        <td><%= order.orderId %></td>
-                        <td>
+                        <td style="border: 2px solid black; padding: 8px;"><%= order.orderId %></td>
+                        <td style="border: 2px solid black; padding: 8px;">
                             <ul>
                                 <% order.products.forEach(product => { %>
                                     <li>
+                                        <img src="<%= product.image %>" alt="<%= product.name %>" style="width: 50px; height: auto;"/>
+
                                         <%= product.name %> (x<%= product.quantity %>) - $<%= product.price %>
                                     </li>
                                 <% }) %>
                             </ul>
                         </td>
-                        <td>$<%= order.totalAmount %></td>
-                        <td><%= new Date(order.date).toLocaleDateString() %></td>
-                        <td><%= order.status %></td>
+                        <td style="border: 2px solid black; padding: 8px;">$<%= order.totalAmount %></td>
+                        <td style="border: 2px solid black; padding: 8px;"><%= new Date(order.date).toLocaleDateString() %></td>
+                        <td style="border: 2px solid black; padding: 8px;"><%= order.status %></td>
                     </tr>
                 <% }) %>
             </tbody>
@@ -50,4 +47,3 @@
 </html>
 
 
-<%- include('../partials/footer') %>

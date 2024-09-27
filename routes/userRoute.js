@@ -18,6 +18,7 @@ route.get('/shop',userController.shop)
 route.get('/shop-detail',userController.shopDetail)
 route.get('/checkout',userController.getCheckOut)
 route.get('/ordersuccess',userController.getOrderSuccess)
+route.get("/myOrders", userController.getOrder)
 
 route.post('/', userController.saveSignup)
 route.post('/login',userController.loginVerify)

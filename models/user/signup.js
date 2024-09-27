@@ -20,7 +20,8 @@ const signupSchema = new Schema({
     cart: [{
         productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
         quantity: { type: Number }
-    }]
+    }],
+    
 });
  const Signup = mongoose.model('Signup',signupSchema);
 module.exports =Signup;
