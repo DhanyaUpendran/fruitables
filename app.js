@@ -7,6 +7,8 @@ const session = require ('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const userRoute = require('./routes/userRoute');
 const adminRoute = require('./routes/adminRoute');
+const Razorpay = require("razorpay");
+const crypto = require('crypto');
 const app = express();
 const port= 3000;
 require('dotenv').config();
@@ -51,7 +53,9 @@ app.use(session ({
 }));
 
 
-// Set up multer for file uploads
+
+
+
 
 
 app.use('/',userRoute);

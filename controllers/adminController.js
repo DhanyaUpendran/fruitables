@@ -132,24 +132,18 @@ const updateOrderStatus = async (req, res) => {
 };
 
 //customer details------------------------------------//
-const getCustomerDetails = async (req, res) => {
-    const { userId } = req.params;
-    
+const  getCustomerDetails = async (req, res) => {
     try {
-        // Fetch the customer details by their ID
-        const customer = await Signup.findById(userId);
+        const customers = await Signup.find(); // Fetch all customers
 
-        if (!customer) {
-            return res.status(404).send('Customer not found');
-        }
-
-        // Render the customer.ejs view and pass the customer details
-        res.render('admin/customers', { customer });
+        // Pass the customers data to the EJS template
+        res.render('admin/customers', { customers });
     } catch (error) {
-        console.error('Error fetching customer details:', error);
-        res.status(500).send('Error fetching customer details');
+        console.error("Error fetching customers:", error);
+        res.status(500).send('Server error');
     }
 };
+
 
 
 

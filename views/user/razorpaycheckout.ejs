@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Payment</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+    <h1>Complete your payment</h1>
+    <button id="payButton">Pay with Razorpay</button>
+
+    <script>
+        const options = {
+    key: "<%= razorpayKey %>",  // Razorpay Key ID from the backend
+    amount: "<%= cartTotal * 100 %>",  // Amount in paise
+    currency: "INR",
+    name: "Your Store Name",
+    description: "Order Payment",
+    order_id: "<%= razorpayOrderId %>",  // Razorpay order ID
+    handler: function (response) {
+        console.log("Payment successful:", response);
+
+        // Send the payment response to the server for verification
+        fetch('/verify-payment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(response)
+        }).then(res => res.json())
+          .then(data => {
+              if (data.success) {
+                  window.location.href = "/ordersuccess";
+              } else {
+                  alert('Payment verification failed!');
+              }
+          });
+    },
+    prefill: {
+        name: "<%= user.firstName %> <%= user.lastName %>",
+        email: "<%= user.email %>",
+        contact: "<%= user.phone %>"
+    },
+    theme: {
+        color: "#F37254"
+    }
+};
+
+
+        const rzp = new Razorpay(options);
+
+        document.getElementById('payButton').onclick = function(e) {
+            rzp.open();
+            e.preventDefault();
+        };
+    </script>
+</body>
+</html>

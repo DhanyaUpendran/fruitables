@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Details</title>
+    <title>Customer List</title>
     <style>
         table {
-            width: 50%;
+            width: 80%;
             margin: 20px auto;
             border-collapse: collapse;
         }
@@ -23,31 +23,31 @@
     </style>
 </head>
 <body>
-    <h1 style="text-align:center;">Customer Details</h1>
+    <h1 style="text-align:center;">Customer List</h1>
     
     <table>
-        <tr>
-            <th>Name</th>
-            <td><%= customer.name %></td>
-        </tr>
-        <tr>
-            <th>Email</th>
-            <td><%= customer.email %></td>
-        </tr>
-        <tr>
-            <th>Phone</th>
-            <td><%= customer.phone %></td>
-        </tr>
-        <tr>
-            <th>Address</th>
-            <td><%= customer.address %></td>
-        </tr>
-        
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% customers.forEach(customer => { %>
+                <tr>
+                    <td><%= customer.Username %></td>
+                    <td><%= customer.Email %></td>
+                    <td>
+                        <a href="/admin/customers/<%= customer._id %>">View Details</a>
+                    </td>
+                </tr>
+            <% }) %>
+        </tbody>
     </table>
-
+    
     <div style="text-align:center;">
-        <a href="/admin/customers">Back to Customer List</a>
+        <a href="/admin">Back to Admin Dashboard</a>
     </div>
 </body>
 </html>
-

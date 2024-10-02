@@ -18,6 +18,6 @@ route.post('/products/edit/:id', adminController.editProduct);
 route.post('/products/delete/:id', adminController.deleteProduct);
 route.get('/adminOrder',adminController.getOrdersAdmin)
 route.post('/adminOrder/:orderId/status', adminController.updateOrderStatus);
-route.get('/customers/:userId', adminController.getCustomerDetails);
+route.get('/customers',adminController.getCustomerDetails);
 
 module.exports = route;

@@ -61,20 +61,19 @@
                                 <input type="email" name="email" class="form-control" placeholder="Email" required>
                             </div>
                         
-                            <h4>Payment Method</h4>
-                            <div class="payment-method">
-                                <label>
-                                    <input type="radio" name="paymentMethod" value="Direct Bank Transfer" required> Direct Bank Transfer
-                                </label>
-                                <label>
-                                    <input type="radio" name="paymentMethod" value="Cash On Delivery"> Cash On Delivery
-                                </label>
-                                <label>
-                                    <input type="radio" name="paymentMethod" value="Paypal"> Paypal
-                                </label>
+                            <div>
+                                <label for="paymentMethod">Payment Method</label>
+                                <select name="paymentMethod" id="paymentMethod" required>
+                                    <option value="cod">Cash on Delivery</option>
+                                    <option value="razorpay">Online Payment (Razorpay)</option>
+                                </select>
                             </div>
                         
-                            <input type="hidden" name="cartTotal" value="<%= cartItems.reduce((total, item) => total + item.price * item.quantity, 0) %>">
+                            <input type="hidden" name="cartTotal" value="<%= cartTotal %>">
+                            <!-- <button type="submit">Proceed to Payment</button> -->
+                            <!-- <input type="hidden" name="cartTotal" value="<%= cartItems %>"> -->
+                            <input type="hidden" name="razorpayOrderId" id="razorpayOrderId">
+
                             <button type="submit" class="btn btn-primary w-100">Place Order</button>
 
                         </form>
@@ -167,5 +166,62 @@
     <!-- Footer Start -->
     <%- include('../partials/footer') %>
     <!-- Footer End -->
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        const paymentMethodSelect = document.getElementById('paymentMethod');
+        const checkoutForm = document.getElementById('checkoutForm');
+
+        // Listen for form submission
+        checkoutForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const selectedPaymentMethod = paymentMethodSelect.value;
+            if (selectedPaymentMethod === 'razorpay') {
+                // Call backend to create Razorpay order
+                const response = await fetch('/create-razorpay-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ cartTotal: "<%= cartTotal %>" }) // Send cart total to backend
+                });
+
+                const orderData = await response.json();
+
+                // Initialize Razorpay
+                const options = {
+                    key: "<%= process.env.RAZORPAY_KEY_ID %>", // Replace with your Razorpay Key ID
+                    amount: orderData.amount, // Amount in paise
+                    currency: "INR",
+                    name: "Your Store Name",
+                    description: "Order Payment",
+                    order_id: orderData.id, // Order ID from Razorpay API
+                    handler: function (response) {
+                        // Send payment details to backend for verification
+                        fetch('/verify-payment', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(response)
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                window.location.href = "/ordersuccess";
+                            } else {
+                                alert('Payment verification failed!');
+                            }
+                        });
+                    }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+            } else {
+                // Submit the form for other payment methods like COD
+                checkoutForm.submit();
+            }
+        });
+    </script>
 </body>
 </html>

@@ -4,6 +4,12 @@ const Signup = require('../models/user/signup')
 const Product = require('../models/admin/products');
 const CartItem= require('../models/user/cartItem');
 const Order= require('../models/user/order');
+const razorpay = require("../middleware/razorpay");
+const crypto = require('crypto');
+require('dotenv').config();
+
+
+
 
 const signup =  (req, res) => {
     res.render('user/signup'); 
@@ -276,14 +282,33 @@ const cartRemove = async (req, res) => {
 
 //--------------------------------------checkOut------------------------------------//
 
-
 const getOrderSuccess = (req, res) => {
     if (req.session.user) {
         res.render('user/ordersuccess', { user: req.session.user });
     } else {
         res.redirect('/checkout');
+      
     }
 };
+
+const razorpayCheckout = (req, res) => {
+    if (req.session.user) {
+        res.render('user/razorpaycheckout', { user: req.session.user });
+    } else {
+        res.redirect('/checkout');
+    }
+};
+
+
+
+// Place this helper function outside the controller functions but inside the same file
+function verifyRazorpaySignature(paymentId, orderId, signature) {
+    const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
+    hmac.update(orderId + '|' + paymentId);
+    const generatedSignature = hmac.digest('hex');
+    return generatedSignature === signature;
+}
+
 
 const getCheckOut = async (req, res) => {
     try {
@@ -308,7 +333,10 @@ const getCheckOut = async (req, res) => {
             quantity: item.quantity
         }));
 
-        res.render('user/checkout', { user, cartItems });
+        const cartTotal = cartItems.reduce((total, item) => {
+            return total + (item.price * item.quantity);
+        }, 0);
+        res.render('user/checkout', { user, cartItems,cartTotal });
     } catch (error) {
         console.error("Error fetching checkout page:", error);
         res.status(500).send('Error fetching checkOut');
@@ -321,24 +349,18 @@ const getCheckOut = async (req, res) => {
 
 const postCheckOut = async (req, res) => {
     console.log("postCheckOut triggered");
-    console.log("Session User:", req.session.user);
-    
+
     const { firstName, lastName, company, address, city, country, postcode, phone, email, paymentMethod, cartTotal } = req.body;
-    console.log('Received form data:', req.body);
 
     try {
         const userId = req.session.user;
         if (!userId) {
-            console.log("User is not logged in");
-            return res.status(401).redirect('/login'); n
+            return res.status(401).redirect('/login');
         }
 
         const user = await Signup.findById(userId).populate('cart.productId');
-        console.log("User found:", user);
-        console.log("Cart items:", user.cart);
 
         if (!user.cart || user.cart.length === 0) {
-            console.log("Cart is empty");
             return res.status(400).send("Cart is empty");
         }
 
@@ -350,6 +372,29 @@ const postCheckOut = async (req, res) => {
             price: item.productId.price
         }));
 
+        // If paymentMethod is Razorpay, create an order in Razorpay
+        if (paymentMethod === 'razorpay') {
+            const razorpayOrder = await razorpay.orders.create({
+                amount: cartTotal * 100,  // Amount in smallest currency unit (paise)
+                currency: "INR",
+                receipt: `receipt_order_${Math.floor(Math.random() * 1000000)}`,
+                payment_capture: 1  // Auto-capture payment
+            });
+            
+
+            console.log("Razorpay order created:", razorpayOrder);
+
+            res.render('user/razorpayCheckout', { 
+                user: req.session.user, 
+                razorpayOrderId: razorpayOrder.id,  
+                cartTotal,
+                razorpayKey:process.env.RAZORPAY_KEY_ID  
+            });
+
+             
+        }
+
+        // If payment method is not Razorpay, proceed with normal order creation logic
         const newOrder = new Order({
             user: userId,
             products: cartItems,
@@ -371,24 +416,37 @@ const postCheckOut = async (req, res) => {
             totalAmount: cartTotal
         });
 
-        console.log("New order:", newOrder);
-
-      
         await newOrder.save();
-        console.log("Order saved");
 
-        // Clear the user's cart after the order is placed
+        // Clear the user's cart
         user.cart = [];
         await user.save();
 
-    
-        res.redirect('/ordersuccess');
+        return res.redirect('/ordersuccess');
     } catch (error) {
         console.error("Error during checkout:", error);
         res.redirect('/checkout');
-        console.log("order failed");
     }
 };
+const paymentVerify = async (req, res) => {
+    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
+
+    // Verify payment signature (use Razorpay's library or custom verification)
+    const isValid = verifyRazorpaySignature(razorpay_payment_id, razorpay_order_id, razorpay_signature);
+
+    if (isValid) {
+        // Update order status in the database to 'Paid'
+        await Order.findOneAndUpdate({ razorpayOrderId: razorpay_order_id }, { 'paymentDetails.status': 'Paid' });
+
+        return res.json({ success: true });
+    } else {
+        return res.json({ success: false });
+    }
+};
+
+
+
+// order viewing page---------------------------------//
 
 const getOrder = async (req, res) => {
     try {
@@ -454,7 +512,6 @@ const getOrder = async (req, res) => {
 
 
 
-
   
   
         
@@ -479,5 +536,7 @@ module.exports = {
     postCheckOut,
     getOrderSuccess,
     getOrder,
+    razorpayCheckout,
+    paymentVerify
     
 }
